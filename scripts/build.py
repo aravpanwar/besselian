@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT / 'src'))
 from eclipse.local_circumstances import Elements
 from eclipse.places import load, PATH_COUNTRIES_2027, haversine_km
 from eclipse.path import greatest_duration, rank, build_centerline
+from eclipse.advisories import fetch_all, SEVERITY, ISSUER, ISSUER_SHORT
 
 def fmt_duration(seconds: float) -> str:
     """m'ss" from seconds. Truncate, never round: 330.2 s is 5m30s, not 6m30s."""
@@ -47,6 +48,16 @@ track = build_centerline(E, -12.0, 50.0, 0.5)
 print(f'centerline pts   {len(track)}')
 ranked = rank(places, E, peak, track=track)
 print(f'inside the path   {len(ranked)}  ({time.time() - t0:.1f}s)')
+
+# Advisories, queried once here rather than per visitor.
+print('fetching advisories from the FCDO ...')
+advisories = fetch_all(PATH_COUNTRIES_2027)
+for cc, ad in advisories.items():
+    if ad.unknown_statuses:
+        print(f'  WARNING unrecognised alert_status for {ad.country}: '
+              f'{ad.unknown_statuses}')
+flagged = sum(1 for ad in advisories.values() if ad.worst)
+print(f'advisories       {len(advisories)} fetched, {flagged} carry an alert')
 
 rows = [r.as_row() for r in ranked]
 
@@ -87,6 +98,16 @@ json_path.write_text(json.dumps({
                                   'absence of a town.'),
         },
     },
+    'advisories': {
+        'issuer': ISSUER,
+        'issuer_short': ISSUER_SHORT,
+        'handling': ('Attached to the country group, never to individual rows. '
+                     'Nothing is hidden or reordered because of an advisory: a '
+                     'ranking that optimises for duration, clear sky and low '
+                     'crowds will surface places under serious advisories at '
+                     'the top, because on those axes they genuinely win.'),
+        'by_country': {cc: ad.as_dict() for cc, ad in advisories.items()},
+    },
     'sources': [
         {'name': 'Besselian elements',
          'attribution': meta['provenance']['attribution'],
@@ -94,6 +115,10 @@ json_path.write_text(json.dumps({
          'retrieved': meta['provenance']['retrieved']},
         {'name': 'Populated places', 'attribution': 'GeoNames, CC BY 4.0',
          'url': 'https://download.geonames.org/export/dump/'},
+        {'name': 'Travel advisories', 'attribution': ISSUER,
+         'url': 'https://www.gov.uk/foreign-travel-advice',
+         'note': 'Contains public sector information licensed under the Open '
+                 'Government Licence v3.0.'},
     ],
     'count': len(rows),
     'places': rows,
@@ -111,6 +136,10 @@ for r in ranked:
     by_country.setdefault(r.place.country, []).append(r)
 for country, rs in sorted(by_country.items(), key=lambda kv: -len(kv[1])):
     best = min(rs, key=lambda r: r.seconds_sacrificed)
+    ad = advisories.get(best.place.country_code)
+    badge = ''
+    if ad and ad.worst:
+        badge = f'   [{ISSUER_SHORT}: {ad.labels[0]}]'
     print(f'  {country:<14} {len(rs):4d} places   best: {best.place.name} '
           f'({fmt_duration(best.duration_seconds)}, '
-          f'-{best.seconds_sacrificed:.1f}s)')
+          f'-{best.seconds_sacrificed:.1f}s){badge}')

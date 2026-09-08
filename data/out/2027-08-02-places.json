@@ -28,6 +28,207 @@
    "geonames_coverage": "Coverage is uneven by country. Absence of a town here means absence from GeoNames, not absence of a town."
   }
  },
+ "advisories": {
+  "issuer": "UK Foreign, Commonwealth & Development Office",
+  "issuer_short": "FCDO",
+  "handling": "Attached to the country group, never to individual rows. Nothing is hidden or reordered because of an advisory: a ranking that optimises for duration, clear sky and low crowds will surface places under serious advisories at the top, because on those axes they genuinely win.",
+  "by_country": {
+   "ES": {
+    "country_code": "ES",
+    "country": "Spain",
+    "alert_status": [],
+    "labels": [],
+    "worst": null,
+    "reviewed_at": "2026-08-12T15:46:24Z",
+    "updated_at": "2026-08-12T16:46:24+01:00",
+    "checked_at": "2026-09-08T11:09:12Z",
+    "issuer": "UK Foreign, Commonwealth & Development Office",
+    "issuer_short": "FCDO",
+    "url": "https://www.gov.uk/foreign-travel-advice/spain",
+    "unknown_statuses": [],
+    "regions": []
+   },
+   "MA": {
+    "country_code": "MA",
+    "country": "Morocco",
+    "alert_status": [],
+    "labels": [],
+    "worst": null,
+    "reviewed_at": "2026-08-19T11:00:36Z",
+    "updated_at": "2026-08-19T12:00:36+01:00",
+    "checked_at": "2026-09-08T11:09:12Z",
+    "issuer": "UK Foreign, Commonwealth & Development Office",
+    "issuer_short": "FCDO",
+    "url": "https://www.gov.uk/foreign-travel-advice/morocco",
+    "unknown_statuses": [],
+    "regions": [
+     "Western Sahara",
+     "Morocco-Algeria border"
+    ]
+   },
+   "DZ": {
+    "country_code": "DZ",
+    "country": "Algeria",
+    "alert_status": [
+     "avoid_all_travel_to_parts"
+    ],
+    "labels": [
+     "Advises against all travel to parts of the country"
+    ],
+    "worst": "avoid_all_travel_to_parts",
+    "reviewed_at": "2026-07-24T16:25:37Z",
+    "updated_at": "2026-07-24T17:25:37+01:00",
+    "checked_at": "2026-09-08T11:09:13Z",
+    "issuer": "UK Foreign, Commonwealth & Development Office",
+    "issuer_short": "FCDO",
+    "url": "https://www.gov.uk/foreign-travel-advice/algeria",
+    "unknown_statuses": [],
+    "regions": []
+   },
+   "TN": {
+    "country_code": "TN",
+    "country": "Tunisia",
+    "alert_status": [
+     "avoid_all_travel_to_parts"
+    ],
+    "labels": [
+     "Advises against all travel to parts of the country"
+    ],
+    "worst": "avoid_all_travel_to_parts",
+    "reviewed_at": "2026-07-24T16:07:53Z",
+    "updated_at": "2026-07-24T17:07:53+01:00",
+    "checked_at": "2026-09-08T11:09:13Z",
+    "issuer": "UK Foreign, Commonwealth & Development Office",
+    "issuer_short": "FCDO",
+    "url": "https://www.gov.uk/foreign-travel-advice/tunisia",
+    "unknown_statuses": [],
+    "regions": [
+     "Western Tunisia, including the Tunisia-Algeria border",
+     "Southern Tunisia, including the Tunisia-Libya border"
+    ]
+   },
+   "LY": {
+    "country_code": "LY",
+    "country": "Libya",
+    "alert_status": [
+     "avoid_all_travel_to_parts",
+     "avoid_all_but_essential_travel_to_parts"
+    ],
+    "labels": [
+     "Advises against all travel to parts of the country",
+     "Advises against all but essential travel to parts of the country"
+    ],
+    "worst": "avoid_all_travel_to_parts",
+    "reviewed_at": "2026-07-21T09:00:09Z",
+    "updated_at": "2026-07-21T10:00:09+01:00",
+    "checked_at": "2026-09-08T11:09:14Z",
+    "issuer": "UK Foreign, Commonwealth & Development Office",
+    "issuer_short": "FCDO",
+    "url": "https://www.gov.uk/foreign-travel-advice/libya",
+    "unknown_statuses": [],
+    "regions": [
+     "Tripoli",
+     "Benghazi",
+     "Misrata"
+    ]
+   },
+   "EG": {
+    "country_code": "EG",
+    "country": "Egypt",
+    "alert_status": [
+     "avoid_all_travel_to_parts",
+     "avoid_all_but_essential_travel_to_parts"
+    ],
+    "labels": [
+     "Advises against all travel to parts of the country",
+     "Advises against all but essential travel to parts of the country"
+    ],
+    "worst": "avoid_all_travel_to_parts",
+    "reviewed_at": "2026-08-04T10:10:57Z",
+    "updated_at": "2026-08-04T11:10:57+01:00",
+    "checked_at": "2026-09-08T11:09:14Z",
+    "issuer": "UK Foreign, Commonwealth & Development Office",
+    "issuer_short": "FCDO",
+    "url": "https://www.gov.uk/foreign-travel-advice/egypt",
+    "unknown_statuses": [],
+    "regions": [
+     "Egypt-Libya border",
+     "North Sinai",
+     "Northern part of South Sinai",
+     "Eastern part of Ismailiyah Governorate",
+     "Western Desert",
+     "Hala’ib Triangle and Bir Tawil Trapezoid"
+    ]
+   },
+   "SA": {
+    "country_code": "SA",
+    "country": "Saudi Arabia",
+    "alert_status": [
+     "avoid_all_travel_to_parts",
+     "avoid_all_but_essential_travel_to_parts"
+    ],
+    "labels": [
+     "Advises against all travel to parts of the country",
+     "Advises against all but essential travel to parts of the country"
+    ],
+    "worst": "avoid_all_travel_to_parts",
+    "reviewed_at": "2026-07-25T17:34:42Z",
+    "updated_at": "2026-07-25T18:34:42+01:00",
+    "checked_at": "2026-09-08T11:09:14Z",
+    "issuer": "UK Foreign, Commonwealth & Development Office",
+    "issuer_short": "FCDO",
+    "url": "https://www.gov.uk/foreign-travel-advice/saudi-arabia",
+    "unknown_statuses": [],
+    "regions": [
+     "Saudi Arabia-Yemen border and threats from the Houthis",
+     "Military zones and border posts"
+    ]
+   },
+   "YE": {
+    "country_code": "YE",
+    "country": "Yemen",
+    "alert_status": [
+     "avoid_all_travel_to_whole_country"
+    ],
+    "labels": [
+     "Advises against all travel to the whole country"
+    ],
+    "worst": "avoid_all_travel_to_whole_country",
+    "reviewed_at": "2026-07-31T09:35:27Z",
+    "updated_at": "2026-07-31T10:35:27+01:00",
+    "checked_at": "2026-09-08T11:09:15Z",
+    "issuer": "UK Foreign, Commonwealth & Development Office",
+    "issuer_short": "FCDO",
+    "url": "https://www.gov.uk/foreign-travel-advice/yemen",
+    "unknown_statuses": [],
+    "regions": []
+   },
+   "SO": {
+    "country_code": "SO",
+    "country": "Somalia",
+    "alert_status": [
+     "avoid_all_travel_to_parts"
+    ],
+    "labels": [
+     "Advises against all travel to parts of the country"
+    ],
+    "worst": "avoid_all_travel_to_parts",
+    "reviewed_at": "2026-06-04T14:57:41Z",
+    "updated_at": "2026-06-04T15:57:41+01:00",
+    "checked_at": "2026-09-08T11:09:15Z",
+    "issuer": "UK Foreign, Commonwealth & Development Office",
+    "issuer_short": "FCDO",
+    "url": "https://www.gov.uk/foreign-travel-advice/somalia",
+    "unknown_statuses": [],
+    "regions": [
+     "Togdheer, Sanaag and Sool",
+     "Awdal, Maroodijeh and Sahil",
+     "Border areas",
+     "The rest of Somalia"
+    ]
+   }
+  }
+ },
  "sources": [
   {
    "name": "Besselian elements",
@@ -39,6 +240,12 @@
    "name": "Populated places",
    "attribution": "GeoNames, CC BY 4.0",
    "url": "https://download.geonames.org/export/dump/"
+  },
+  {
+   "name": "Travel advisories",
+   "attribution": "UK Foreign, Commonwealth & Development Office",
+   "url": "https://www.gov.uk/foreign-travel-advice",
+   "note": "Contains public sector information licensed under the Open Government Licence v3.0."
   }
  ],
  "count": 772,
