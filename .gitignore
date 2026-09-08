@@ -5,3 +5,4 @@ data/cache/
 *.osm.pbf
 *.zip
 .venv/
+data/out/
