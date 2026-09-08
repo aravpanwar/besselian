@@ -16,6 +16,7 @@ from eclipse.local_circumstances import Elements
 from eclipse.places import load, PATH_COUNTRIES_2027, haversine_km
 from eclipse.path import greatest_duration, rank, build_centerline
 from eclipse.advisories import fetch_all, SEVERITY, ISSUER, ISSUER_SHORT
+from eclipse.lodging import load_cache, combined_index, supply_within
 
 def fmt_duration(seconds: float) -> str:
     """m'ss" from seconds. Truncate, never round: 330.2 s is 5m30s, not 6m30s."""
@@ -59,7 +60,29 @@ for cc, ad in advisories.items():
 flagged = sum(1 for ad in advisories.values() if ad.worst)
 print(f'advisories       {len(advisories)} fetched, {flagged} carry an alert')
 
-rows = [r.as_row() for r in ranked]
+# Lodging supply. Counts, never prices: supply thinning toward the centreline
+# is the story, and a count stays true where a scraped rate does not.
+SUPPLY_RADII_KM = (25.0, 80.0)
+loaded = load_cache(ROOT / 'data' / 'cache' / 'lodging', PATH_COUNTRIES_2027)
+if loaded:
+    lodging_index = combined_index(loaded)
+    total_features = sum(len(v) for v in loaded.values())
+    print(f'lodging          {total_features} features from {len(loaded)} extracts')
+else:
+    lodging_index = None
+    print('lodging          SKIP (run scripts/extract_lodging.py first)')
+
+rows = []
+for r in ranked:
+    row = r.as_row()
+    if lodging_index is not None:
+        for radius in SUPPLY_RADII_KM:
+            s_ = supply_within(r.place.latitude, r.place.longitude,
+                               radius, lodging_index)
+            tag = int(radius)
+            row[f'lodging_within_{tag}km'] = s_.lodging_count
+            row[f'camping_within_{tag}km'] = s_.camping_count
+    rows.append(row)
 
 # CSV: the full dataset, openly licensed.
 csv_path = OUT / f'{EVENT}-places.csv'
@@ -115,6 +138,14 @@ json_path.write_text(json.dumps({
          'retrieved': meta['provenance']['retrieved']},
         {'name': 'Populated places', 'attribution': 'GeoNames, CC BY 4.0',
          'url': 'https://download.geonames.org/export/dump/'},
+        {'name': 'Lodging supply',
+         'attribution': 'OpenStreetMap contributors, ODbL 1.0',
+         'url': 'https://download.geofabrik.de/',
+         'note': 'Counts of tourism=hotel|guest_house|hostel|motel|apartment|'
+                 'chalet|resort|hut features, and campsites counted '
+                 'separately. Supply only: this dataset carries no prices. '
+                 'Coverage varies enormously by country, so counts compare '
+                 'honestly within a country and poorly across borders.'},
         {'name': 'Travel advisories', 'attribution': ISSUER,
          'url': 'https://www.gov.uk/foreign-travel-advice',
          'note': 'Contains public sector information licensed under the Open '

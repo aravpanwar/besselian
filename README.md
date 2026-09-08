@@ -29,6 +29,28 @@ people and beats Luxor by 1.8 s.
 All 18 places within 3 s of the maximum are in Egypt. The best Spanish location
 sacrifices 94.5 s.
 
+### Supply does not follow the path
+
+The obvious hypothesis, that lodging thins toward the centreline and that is
+where the markup comes from, is not supported. Binned by distance from the
+centreline, the median count of lodging within 25 km of an Egyptian place runs
+12, 21, 1, 13, 6, 0. There is no gradient. Supply tracks the tourism cluster,
+not the geometry.
+
+What the counts do show is sharper:
+
+| | Totality | Sacrificed | Lodging within 25 km | Within 80 km |
+|---|---|---|---|---|
+| Girga | 6m23s | 0.1 s | 4 | 22 |
+| Luxor | 6m20s | 2.7 s | 115 | 127 |
+
+Luxor has 29 times the lodging within 25 km and gives up 2.6 more seconds.
+Widen to 80 km and the two are comparable, because at that radius both reach
+the same Nile-valley cluster. Girga and Luxor are 103 km apart.
+
+That is the sleep-and-stand case in two rows: the rooms and the maximum are not
+in the same place, and the gap between them is a drive, not a compromise.
+
 ## Usage
 
 ```
