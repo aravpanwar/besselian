@@ -1,0 +1,51 @@
+{
+  "id": "2027-08-02",
+  "label": "Total Solar Eclipse of 2027 August 02",
+  "type": "T",
+  "date_utc": "2027-08-02",
+  "t0_tdt_hours": 10.0,
+  "delta_t_seconds": 76.0,
+  "greatest_eclipse": {
+    "instant_tdt": "10:07:50",
+    "instant_ut": "10:06:34",
+    "jd": 2461619.922,
+    "latitude_deg": 25.5,
+    "longitude_deg": 33.2,
+    "sun_altitude_deg": 81.7,
+    "sun_azimuth_deg": 202.0,
+    "path_width_km": 257.7,
+    "central_duration": "06m23s",
+    "gamma": 0.1421,
+    "magnitude": 1.0790
+  },
+  "lunar_radius_constants": {
+    "k1_penumbra": 0.272488,
+    "k2_umbra": 0.272281
+  },
+  "elements": {
+    "x":  [-0.0197720,   0.5447123, -0.0000446, -0.0000092],
+    "y":  [ 0.1600610,  -0.2111582, -0.0001217,  0.0000038],
+    "d":  [17.7624702,  -0.0101810, -0.0000040,  0.0000000],
+    "l1": [ 0.5305960,   0.0000138, -0.0000128,  0.0000000],
+    "l2": [-0.0154640,   0.0000137, -0.0000128,  0.0000000],
+    "mu": [328.422546,  15.002100,   0.000000,   0.000000]
+  },
+  "tan_f1": 0.0046064,
+  "tan_f2": 0.0045834,
+  "ephemerides": "VSOP87/ELP2000-82",
+  "saros": 136,
+  "lunation": 341,
+  "provenance": {
+    "source": "NASA GSFC Solar Eclipse Search Engine",
+    "url": "https://eclipse.gsfc.nasa.gov/SEsearch/SEdata.php?Ecl=+20270802",
+    "retrieved": "2026-09-08",
+    "attribution": "Eclipse Predictions by Fred Espenak, NASA's GSFC",
+    "publication": "Five Millennium Canon of Solar Eclipses: -1999 to +3000",
+    "delta_t_basis": "Morrison and Stephenson [2004]",
+    "path_edge_accuracy_km": "1-2 (limited by lunar limb profile)",
+    "notes": [
+      "d3 is absent from the NASA page: the server emits 'Undefined variable $_5MCSE_besselian_d3'. Set to 0.0. The d series decays 17.76 -> -1.02e-2 -> -4.0e-6, so the cubic term is negligible over the eclipse window.",
+      "Row 3 of the published table shows values for l1, l2 and mu only; the d column is blank because of that server-side bug."
+    ]
+  }
+}
