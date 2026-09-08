@@ -1,10 +1,42 @@
-# Eclipse Path Map
+# besselian
 
-Computed local circumstances for every populated place inside the path of a
-total solar eclipse, so you can see what a location actually costs you in
-seconds of totality.
+Solar eclipse local circumstances computed from Besselian elements, then
+intersected with populated places, so you can see what a location actually
+costs you in seconds of totality.
 
-Status: computation core validated. No frontend yet.
+Eclipse is a data row, not a constant: one record per event under
+`data/elements/`, same computation for any of them.
+
+Status: computation core validated, place intersection working. No frontend yet.
+Licensing not yet settled, so treat this as all rights reserved for the moment.
+
+## The finding, for the 2 August 2027 eclipse
+
+Luxor is the destination everyone names. It ranks **18th of 60 Egyptian places**
+by seconds of totality sacrificed.
+
+| Place | Totality | Sacrificed | From centerline | Population |
+|---|---|---|---|---|
+| Girga | 6m23s | 0.1 s | 1.0 km | 151,256 |
+| Al Balyana | 6m22s | 0.2 s | 3.7 km | 68,413 |
+| Nag Hammadi | 6m22s | 0.6 s | 6.9 km | 59,601 |
+| Sohag | 6m22s | 0.9 s | 7.7 km | 266,944 |
+| **Luxor** | **6m20s** | **2.7 s** | **15.1 km** | 422,407 |
+
+Fourteen towns sit within 1.7 s of the theoretical maximum. Sohag has 267,000
+people and beats Luxor by 1.8 s.
+
+All 18 places within 3 s of the maximum are in Egypt. The best Spanish location
+sacrifices 94.5 s.
+
+## Usage
+
+```
+python scripts/build.py          # writes data/out/<event>-places.{csv,json}
+python -m pytest tests/ -q       # validation gate
+```
+
+The full build takes about 7 minutes, dominated by the exact centerline solve.
 
 ## Validation
 
@@ -42,6 +74,26 @@ k2 = 0.272281 for umbral. Duration and path limits use the umbral value.
 
 **Lunar limb profile** shifts path limits by 1-2 km and duration by 1-3 s.
 Limb-corrected predictions only appear 12-18 months before an event.
+
+## Coverage
+
+772 of 9,191 places in the nine path countries are inside totality.
+
+| Country | Places | Best |
+|---|---|---|
+| Algeria | 186 | Arris, 5m30s |
+| Tunisia | 136 | Mahires, 5m42s |
+| Spain | 118 | Principe, 4m48s |
+| Yemen | 114 | Baqim as Suq, 6m00s |
+| Morocco | 89 | Mdiq, 4m52s |
+| Egypt | 60 | Girga, 6m23s |
+| Saudi Arabia | 43 | Al Lith, 6m10s |
+| Libya | 18 | Benghazi, 6m09s |
+| Somalia | 8 | Qandala, 5m27s |
+
+Those counts are GeoNames density, not reality. Spain having 118 entries and
+Somalia 8 says more about who edits the gazetteer than about where towns are.
+A place missing here is missing from GeoNames.
 
 ## Data sources
 
