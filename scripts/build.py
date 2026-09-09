@@ -17,6 +17,7 @@ from eclipse.places import load, PATH_COUNTRIES_2027, haversine_km
 from eclipse.path import greatest_duration, rank, build_centerline
 from eclipse.advisories import fetch_all, SEVERITY, ISSUER, ISSUER_SHORT
 from eclipse.lodging import load_cache, combined_index, supply_within
+from eclipse.cloud import GRID_DEGREES, GRID_KM_APPROX
 
 def fmt_duration(seconds: float) -> str:
     """m'ss" from seconds. Truncate, never round: 330.2 s is 5m30s, not 6m30s."""
@@ -72,9 +73,29 @@ else:
     lodging_index = None
     print('lodging          SKIP (run scripts/extract_lodging.py first)')
 
+# Cloud climatology, if the ERA5 cache has been built.
+cloud_path = ROOT / 'data' / 'cache' / 'cloud' / f'{EVENT}-cloud.json'
+if cloud_path.exists():
+    cloud_blob = json.loads(cloud_path.read_text(encoding='utf-8'))
+    cloud_by_id = cloud_blob.get('by_geonameid', {})
+    print(f'cloud            {len(cloud_by_id)} places from ERA5 '
+          f'{cloud_blob["source"]["years"]}')
+else:
+    cloud_blob, cloud_by_id = None, {}
+    print('cloud            SKIP (run scripts/fetch_cloud.py first)')
+
 rows = []
 for r in ranked:
     row = r.as_row()
+    c = cloud_by_id.get(str(r.place.geonameid))
+    if c:
+        row['mean_cloud_percent'] = c['mean_cloud_percent']
+        row['clear_sky_probability'] = c['clear_sky_probability']
+        row['cloud_years_sampled'] = c['years_sampled']
+    else:
+        row['mean_cloud_percent'] = None
+        row['clear_sky_probability'] = None
+        row['cloud_years_sampled'] = None
     if lodging_index is not None:
         for radius in SUPPLY_RADII_KM:
             s_ = supply_within(r.place.latitude, r.place.longitude,
@@ -108,6 +129,7 @@ json_path.write_text(json.dumps({
                      'sacrificed is measured against this point.'),
         },
         'caveats': {
+            **({'cloud': ' '.join(cloud_blob['caveats'])} if cloud_blob else {}),
             'delta_t': (f'Computed with delta T = {E.delta_t_seconds} s '
                         f'({meta["provenance"]["delta_t_basis"]}). delta T is not '
                         'perfectly predictable and shifts the path east or west; '
@@ -146,6 +168,16 @@ json_path.write_text(json.dumps({
                  'separately. Supply only: this dataset carries no prices. '
                  'Coverage varies enormously by country, so counts compare '
                  'honestly within a country and poorly across borders.'},
+        *([{'name': 'Cloud climatology',
+            'attribution': cloud_blob['source']['attribution'],
+            'url': cloud_blob['source']['url'],
+            'note': (f'ERA5 total cloud cover, {cloud_blob["source"]["years"]}, '
+                     f'sampled at the local eclipse hour on a '
+                     f'{GRID_DEGREES} degree grid (about {GRID_KM_APPROX} km). '
+                     'Climatology, not a forecast. For the eclipse-specific '
+                     'satellite treatment see eclipsophile.com, which is the '
+                     'standard reference and is linked rather than reproduced '
+                     'because it states no licence.')}] if cloud_blob else []),
         {'name': 'Travel advisories', 'attribution': ISSUER,
          'url': 'https://www.gov.uk/foreign-travel-advice',
          'note': 'Contains public sector information licensed under the Open '
