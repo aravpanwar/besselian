@@ -1,5 +1,17 @@
 'use strict';
 
+/*
+ * Totality Path & Nearby Locations
+ * Copyright (C) 2026 Arav Panwar
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version. See <https://www.gnu.org/licenses/>.
+ *
+ * Source: https://github.com/aravpanwar/besselian
+ */
+
 const EVENT = '2027-08-02';
 const R_EARTH = 6371.0088;
 

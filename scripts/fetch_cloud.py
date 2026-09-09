@@ -1,3 +1,11 @@
+# Totality Path & Nearby Locations
+# Copyright (C) 2026 Arav Panwar
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version. See <https://www.gnu.org/licenses/>.
+
 """Download ERA5 cloud cover for the path and reduce it to a per-place cache.
 
 Run once per event. Needs ~/.cdsapirc and the ERA5 licence accepted on

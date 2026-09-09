@@ -1,3 +1,11 @@
+# Totality Path & Nearby Locations
+# Copyright (C) 2026 Arav Panwar
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version. See <https://www.gnu.org/licenses/>.
+
 """Wikipedia pageviews as a proxy for how much attention a place gets.
 
 NOT USED IN THE PUBLISHED DATASET. Kept because the brief asked whether an

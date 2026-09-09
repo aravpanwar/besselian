@@ -7,8 +7,7 @@ costs you in seconds of totality.
 Eclipse is a data row, not a constant: one record per event under
 `data/elements/`, same computation for any of them.
 
-Status: computation core validated, place intersection working. No frontend yet.
-Licensing not yet settled, so treat this as all rights reserved for the moment.
+Code is AGPL 3.0, data is ODbL 1.0. See `LICENSE` and `LICENSE-DATA.md`.
 
 ## The finding, for the 2 August 2027 eclipse
 
@@ -152,6 +151,16 @@ Limb-corrected predictions only appear 12-18 months before an event.
 Those counts are GeoNames density, not reality. Spain having 118 entries and
 Somalia 8 says more about who edits the gazetteer than about where towns are.
 A place missing here is missing from GeoNames.
+
+## Licence
+
+Code: AGPL 3.0 (`LICENSE`). Run a modified version as a network service and you
+have to publish your changes.
+
+Data under `data/out/` and `site/data/`: ODbL 1.0 (`LICENSE-DATA.md`). The
+lodging columns come from OpenStreetMap, which is share-alike, so the dataset
+cannot be more permissive than that. Attributions you have to carry are listed
+in `LICENSE-DATA.md`.
 
 ## Data sources
 
