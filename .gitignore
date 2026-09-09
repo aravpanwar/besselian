@@ -12,3 +12,6 @@ data/cache/*.zip
 
 # The extracted lodging cache IS committed: it is small, and it means a site
 # build never needs the multi-gigabyte extracts.
+
+# ERA5 netcdf is large and re-downloadable from the CDS.
+data/cache/cloud/*.nc
