@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Method &mdash; Totality Path &amp; Nearby Locations</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  body { display: block; }
+  .prose { max-width: 660px; margin: 0 auto; padding: 26px 20px 70px; }
+  .prose h2 { font-size: 16px; margin: 30px 0 8px; }
+  .prose h3 { font-size: 13px; margin: 20px 0 5px; }
+  .prose p, .prose li { line-height: 1.62; color: #2f2a24; }
+  .prose li { margin-bottom: 5px; }
+  .prose table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 12.5px; }
+  .prose th, .prose td { text-align: left; padding: 6px 9px; border-bottom: 1px solid var(--hair); }
+  .prose th { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); }
+  .prose td.n { font-family: var(--mono); text-align: right; }
+  code { font-family: var(--mono); font-size: 12px; background: #f2efe8; padding: 1px 4px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Totality Path &amp; Nearby Locations</h1>
+  <span class="rule" aria-hidden="true"></span>
+  <span class="event">Method</span>
+  <span class="spacer"></span>
+  <nav><a href="index.html">Back to the map</a></nav>
+</header>
+
+<div class="prose">
+
+<h2>What this is</h2>
+<p>Every populated place inside the path of the total solar eclipse of
+2 August 2027, with how long totality lasts there and what that costs against
+the longest totality anywhere on the path.</p>
+
+<h2>Eclipse geometry</h2>
+<p>Local circumstances are computed from the Besselian elements published by
+NASA GSFC, following the method in the Explanatory Supplement to the
+Astronomical Ephemeris (1974) and Meeus, <i>Elements of Solar Eclipses</i>
+(1989). Nothing is traced from a map.</p>
+
+<h3>Delta T</h3>
+<p>Computed with &Delta;T = 76.0 s, the value NASA publishes for this eclipse,
+based on Morrison and Stephenson (2004). &Delta;T is not perfectly predictable
+and shifts the path east or west: an older NASA map for this eclipse used
+71.7 s, a difference of about 2 km of longitude. The figure used is shown in
+the page header so you can tell which one these numbers assume.</p>
+
+<h3>Lunar limb</h3>
+<p>The Moon has mountains, which move the path limits by 1&ndash;2 km and
+duration by 1&ndash;3 s against the smooth-limb figures used here.
+Limb-corrected predictions are usually published 12&ndash;18 months before an
+event.</p>
+
+<h3>Greatest eclipse is not greatest duration</h3>
+<p>These are different points. Greatest eclipse is where the shadow axis passes
+closest to the centre of the Earth; greatest duration is where totality lasts
+longest. For this eclipse they are 0.6 s and about 215 km apart. Seconds lost
+is measured against greatest duration, which is the honest denominator.</p>
+
+<h3>Distances</h3>
+<p>All distances are great-circle. Circle membership is by distance, not by
+testing points against the drawn circle polygon, which would make places on the
+edge flicker in and out as you zoom. The radius is straight-line, and straight
+lines are not journeys: 120 km along the Nile and 120 km into the Western
+Desert are very different drives.</p>
+
+<h2>Validation</h2>
+<p>The computation is checked against independently published values before
+anything downstream is trusted.</p>
+<table>
+<tr><th>Check</th><th>Published</th><th>Computed</th></tr>
+<tr><td>Greatest eclipse on the shadow axis</td><td class="n">~0</td><td class="n">1.0e-5</td></tr>
+<tr><td>Sun altitude at greatest eclipse</td><td class="n">81.7&deg;</td><td class="n">81.69&deg;</td></tr>
+<tr><td>Duration at greatest eclipse</td><td class="n">6m 23s</td><td class="n">382.5 s</td></tr>
+<tr><td>Luxor</td><td class="n">6m 20s</td><td class="n">380.4 s</td></tr>
+<tr><td>Countries crossed</td><td class="n">9</td><td class="n">9</td></tr>
+</table>
+<p>Sudan appears in some lists of countries this eclipse crosses. It does not:
+where the path is at Sudan&rsquo;s longitudes the centre line is near
+25&ndash;27&deg;N, and Sudan&rsquo;s northern border is at 22&deg;N.</p>
+
+<h2>Places</h2>
+<p>From GeoNames <code>cities1000</code>, filtered to populated places and
+administrative seats. Coverage is uneven by country: 118 Spanish places inside
+the path against 18 Libyan and 8 Somali. That is a fact about who edits
+GeoNames, not about where towns are. A place missing here is missing from
+GeoNames.</p>
+<p>Population figures come from GeoNames as published and are not always the
+town: for some Egyptian entries they are the surrounding district, which is why
+Esna appears larger than Luxor.</p>
+
+<h2>Cloud</h2>
+<p>ERA5 total cloud cover, 1985&ndash;2024, sampled at each place&rsquo;s local
+eclipse hour on the eclipse date and the day either side. That is 120
+observations per place, not 120 independent years, since consecutive days in
+one August are correlated.</p>
+<p>ERA5 runs on a 0.25 degree grid, about 28 km. That is coarser than the
+terrain here: one cell can span the Nile valley and the desert plateau beside
+it, which do not have the same weather. Read these numbers as regional.</p>
+<p>Checked against Jay Anderson&rsquo;s satellite-derived figures at
+<a href="https://eclipsophile.com/tse2027/">eclipsophile.com</a>: Tarifa
+computes at 23.8% against his 26%, close agreement from an independent method
+and dataset. Luxor computes at 3.1% against his 0.7%, and Melilla at 25.3%
+against his 39%; both read high for the grid-resolution reason above. For a
+specific site Anderson is the better source. His tables are not reproduced
+here because they state no licence.</p>
+<p>Climatology is not a forecast. A real forecast for 2 August 2027 will exist
+about a week beforehand and will be worth more than any of this.</p>
+
+<h2>Places to stay</h2>
+<p>Counts of <code>tourism=hotel</code>, <code>guest_house</code>,
+<code>hostel</code>, <code>motel</code>, <code>apartment</code>,
+<code>chalet</code>, <code>resort</code> and huts from OpenStreetMap, within
+25 km and 80 km. Campsites are counted separately.</p>
+<p>Counts, not prices. This site holds no prices and scrapes none. Counts
+compare honestly within a country and poorly across borders, because OSM
+coverage varies enormously: 28,463 lodging features in Spain against 1,314 in
+Libya.</p>
+<p>One thing to know when reading them: a 25 km radius around a village next to
+a city sweeps up the city&rsquo;s hotels, so several places near Luxor show
+almost identical counts.</p>
+
+<h2>Travel advisories</h2>
+<p>From the UK Foreign, Commonwealth &amp; Development Office, fetched when the
+dataset was built and shown with the date the FCDO last reviewed it. The
+advisory is attached to the country group, never to individual places, and
+nothing is hidden or reordered because of one. Where the FCDO names the
+specific regions an advisory covers, those are listed, because
+&ldquo;parts of the country&rdquo; without saying which parts is not useful.</p>
+
+<h2>What is not here</h2>
+<ul>
+  <li><b>Prices.</b> Deliberately. They have a shelf life of weeks.</li>
+  <li><b>Drive times.</b> Road data in several of these countries is too thin
+      to support an estimate worth showing.</li>
+  <li><b>An attention or popularity signal.</b> Tested against Wikipedia
+      pageviews and dropped: only 28% of these places have an English article
+      with meaningful traffic, and the ratio it produced ranked obscure towns
+      as more overpriced than famous ones.</li>
+</ul>
+
+<h2>Sources</h2>
+<ul>
+  <li>Eclipse predictions by Fred Espenak, NASA&rsquo;s GSFC.</li>
+  <li>GeoNames, CC BY 4.0.</li>
+  <li>Contains modified Copernicus Climate Change Service information (ERA5).</li>
+  <li>OpenStreetMap contributors, ODbL 1.0, via Geofabrik.</li>
+  <li>UK FCDO, Open Government Licence v3.0.</li>
+</ul>
+<p>The full dataset is on the map page as a CSV download. Corrections are
+visible in the git history.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Totality Path &amp; Nearby Locations &mdash; 2 August 2027</title>
+<meta name="description" content="Every populated place inside the path of the 2 August 2027 total solar eclipse, ranked by how many seconds of totality it costs you.">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header id="top">
+  <h1>Totality Path &amp; Nearby Locations</h1>
+  <span class="rule" aria-hidden="true"></span>
+  <span class="event">2 August 2027</span>
+  <span class="spacer"></span>
+  <span class="stats" id="stats"></span>
+  <span class="rule" aria-hidden="true"></span>
+  <nav>
+    <a href="2027-08-02-places.csv" download>Download CSV</a>
+    <a href="method.html">Method</a>
+  </nav>
+</header>
+
+<main>
+  <section id="mapwrap" aria-label="Map of the eclipse path">
+    <div id="map"></div>
+
+    <div class="panel controls">
+      <div class="ctl">
+        <label for="radius">Radius from pin</label>
+        <output id="radiusOut" for="radius">120 km</output>
+      </div>
+      <input type="range" id="radius" min="10" max="400" step="5" value="120"
+             aria-describedby="radiusNote">
+      <div class="scale"><span>10</span><span>400 km</span></div>
+      <p id="radiusNote" class="note">
+        Straight-line distance. 120 km along the Nile and 120 km into the
+        Western Desert are not the same journey.
+      </p>
+    </div>
+
+    <div class="panel caveat">
+      Computed with &Delta;T&nbsp;=&nbsp;<span id="dt"></span>&nbsp;s.
+      Path limits carry 1&ndash;2 km of uncertainty from the lunar limb profile.
+    </div>
+
+    <button type="button" id="clearPin" class="panel clearpin" hidden>
+      Clear pin, show whole path
+    </button>
+  </section>
+
+  <section id="results" aria-label="Places in the circle">
+    <div id="summary">
+      <h2 id="count">772 places</h2>
+      <p id="where">across the whole path</p>
+    </div>
+
+    <div id="sortbar" role="group" aria-label="Sort by">
+      <span class="sortlabel">Sort</span>
+      <button type="button" data-sort="s" class="active" aria-pressed="true">seconds lost</button>
+      <button type="button" data-sort="w" aria-pressed="false">cloud</button>
+      <button type="button" data-sort="l" aria-pressed="false">beds</button>
+      <button type="button" data-sort="p" aria-pressed="false">population</button>
+    </div>
+
+    <div id="rows" tabindex="0" aria-live="polite"></div>
+
+    <footer id="finding">
+      <h3>Where you sleep is not where you stand</h3>
+      <div class="pair">
+        <div>
+          <b id="fBestDur">6:23</b>
+          <span id="fBestSub">Girga &middot; 4 beds</span>
+        </div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+             aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        <div>
+          <b id="fRefDur">6:20</b>
+          <span id="fRefSub">Luxor &middot; 115 beds</span>
+        </div>
+        <div class="gap">
+          <b id="fGap">103 km</b>
+          <span>apart</span>
+        </div>
+      </div>
+      <p id="fText"></p>
+    </footer>
+  </section>
+</main>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
