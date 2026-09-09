@@ -96,9 +96,10 @@ dest.write_text(json.dumps({
         'which do not have the same cloud behaviour. Read these as regional.',
         'Reanalysis is a model constrained by observations, not an observation. '
         'Cloud is among its weaker fields.',
-        'A mean over years hides the spread: 20 percent can be one year in five '
-        'overcast or five years all hazy. The clear and overcast year counts are '
-        'included so the spread is visible.',
+        'A mean hides the spread: 20 percent can be one observation in five '
+        'overcast or five all hazy. The clear and overcast counts are included '
+        'so the spread is visible. Samples are place-days, three days across '
+        'forty years, so 120 observations rather than 120 independent years.',
         'Climatology is not a forecast. A real forecast for 2 August 2027 will '
         'exist about a week beforehand and will be worth more than any of this.',
         'For the authoritative eclipse-specific treatment see Jay Anderson at '

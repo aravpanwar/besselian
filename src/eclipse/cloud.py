@@ -45,21 +45,27 @@ GRID_KM_APPROX = 28
 
 @dataclass
 class CloudClimatology:
-    """Historical cloudiness for one place at its eclipse hour."""
+    """Historical cloudiness for one place at its eclipse hour.
 
-    mean_cloud_fraction: float      # 0..1, mean over sampled years
-    years_sampled: int
-    days_per_year: int
+    Samples are place-days, not years: sampling three days across forty years
+    gives 120 observations, and the field names say so. Calling them years
+    would overstate the evidence, because 1 and 2 August of the same year are
+    correlated in a way two different years are not.
+    """
+
+    mean_cloud_fraction: float      # 0..1, mean over sampled observations
+    observations: int               # years x days actually sampled
     hour_ut: int
-    clear_years: int                # years under 20% cloud
-    overcast_years: int             # years over 80% cloud
+    clear_observations: int         # observations under 20% cloud
+    overcast_observations: int      # observations over 80% cloud
     grid_lat: float                 # the ERA5 cell actually used
     grid_lon: float
 
     @property
     def clear_sky_probability(self) -> float:
-        """Fraction of sampled years that were substantially clear."""
-        return self.clear_years / self.years_sampled if self.years_sampled else 0.0
+        """Fraction of sampled observations that were substantially clear."""
+        return (self.clear_observations / self.observations
+                if self.observations else 0.0)
 
     def as_dict(self) -> dict:
         d = asdict(self)
@@ -154,11 +160,10 @@ def sample(dataset, lat: float, lon: float, hour_ut: int,
 
     return CloudClimatology(
         mean_cloud_fraction=sum(series) / len(series),
-        years_sampled=len(series),
-        days_per_year=1,
+        observations=len(series),
         hour_ut=hour_ut,
-        clear_years=sum(1 for v in series if v < 0.20),
-        overcast_years=sum(1 for v in series if v > 0.80),
+        clear_observations=sum(1 for v in series if v < 0.20),
+        overcast_observations=sum(1 for v in series if v > 0.80),
         grid_lat=round(float(lats[iy]), 4),
         grid_lon=round(float(lons[ix]), 4),
     )

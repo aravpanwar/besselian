@@ -51,12 +51,46 @@ the same Nile-valley cluster. Girga and Luxor are 103 km apart.
 That is the sleep-and-stand case in two rows: the rooms and the maximum are not
 in the same place, and the gap between them is a drive, not a compromise.
 
+### Cloud does not complicate the choice
+
+Median cloud cover at the local eclipse hour, from ERA5 over 1985-2024:
+
+| Country | Places | Median cloud | Range |
+|---|---|---|---|
+| Egypt | 60 | 1.8% | 0.1-14.1 |
+| Tunisia | 136 | 4.2% | 1.8-6.7 |
+| Libya | 18 | 4.7% | 0.1-8.5 |
+| Algeria | 186 | 12.5% | 4.3-22.3 |
+| Spain | 118 | 16.1% | 12.2-25.3 |
+| Morocco | 89 | 22.9% | 12.7-30.8 |
+| Somalia | 8 | 36.6% | 30.9-41.3 |
+| Saudi Arabia | 43 | 54.6% | 15.0-73.8 |
+| Yemen | 114 | 61.5% | 32.8-79.8 |
+
+Spain gives 4m48s with roughly one August day in four cloudy. Egypt gives
+6m23s at 1.8%. Duration and clear sky point the same way, so there is no
+trade to agonise over.
+
+Checked against Jay Anderson's satellite-derived figures at eclipsophile.com:
+Tarifa computes at 23.8% against his 26%, from an independent method and
+dataset. Luxor computes at 3.1% against his 0.7%, and Melilla at 25.3%
+against his 39%. Those two read high for the same reason: at 0.25 degrees one
+ERA5 cell blends the Nile valley with the desert beside it, and Melilla with
+the sea and the Rif. Treat these numbers as regional. Anderson is the better
+source for a specific site and is linked, not reproduced, because his tables
+state no licence.
+
 ## Usage
 
 ```
-python scripts/build.py          # writes data/out/<event>-places.{csv,json}
-python -m pytest tests/ -q       # validation gate
+python scripts/extract_lodging.py   # once per OSM refresh, needs the extracts
+python scripts/fetch_cloud.py       # once per event, needs ~/.cdsapirc
+python scripts/build.py             # writes data/out/<event>-places.{csv,json}
+python -m pytest tests/ -q          # validation gate
 ```
+
+`build.py` runs without the lodging or cloud caches and says which columns are
+missing, so the core dataset is reproducible without a CDS account.
 
 The full build takes about 7 minutes, dominated by the exact centerline solve.
 
@@ -76,6 +110,8 @@ downstream work is trusted:
 | Seconds Luxor sacrifices | a few | 3.1 s |
 | Countries crossed | 9, not incl. Sudan | confirmed |
 | Aden / Berbera | partial only | confirmed |
+| Girga cloud, Aug | very low | 1.8% |
+| Sanaa cloud, Aug | monsoon | 79.8% |
 
 ## Notes on correctness
 
@@ -120,6 +156,11 @@ A place missing here is missing from GeoNames.
 ## Data sources
 
 - Besselian elements: NASA GSFC. *Eclipse Predictions by Fred Espenak, NASA's GSFC.*
+- Cloud: ERA5 hourly data on single levels, Copernicus Climate Change Service.
+  Contains modified Copernicus Climate Change Service information.
+- Lodging: OpenStreetMap contributors, ODbL 1.0, via Geofabrik extracts.
+- Advisories: UK Foreign, Commonwealth & Development Office, Open Government
+  Licence v3.0.
 - Prior art worth using: [eclipsewhere.com](https://eclipsewhere.com) for
   curated cloud-first guidance, [Xavier Jubier's interactive map](http://xjubier.free.fr/en/site_pages/solar_eclipses/xSE_GoogleMap3.php?Ecl=+20270802)
   for point queries, [Eclipsophile](https://eclipsophile.com/tse2027/) for

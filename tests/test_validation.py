@@ -135,3 +135,44 @@ def _greatest_duration():
             if step < 1e-6:
                 break
     return best
+
+
+def test_cloud_cache_is_physically_plausible():
+    """ERA5 cloud should reproduce the known August climate of the path.
+
+    Not a test of the eclipse maths, a test that the right variable was read
+    from the right grid cells: the Western Desert is famously cloudless in
+    August and the Yemeni highlands are in monsoon. If these invert, the
+    latitude axis is flipped or the variable is wrong.
+    """
+    import json
+    cache = (Path(__file__).resolve().parents[1] / 'data' / 'cache' / 'cloud'
+             / '2027-08-02-cloud.json')
+    if not cache.exists():
+        return                      # cloud is optional; the build works without it
+
+    blob = json.loads(cache.read_text(encoding='utf-8'))
+    by_id = blob['by_geonameid']
+    assert by_id, 'cloud cache is empty'
+
+    for rec in by_id.values():
+        assert 0.0 <= rec['mean_cloud_fraction'] <= 1.0
+        assert rec['observations'] > 0
+        assert rec['clear_observations'] <= rec['observations']
+        assert rec['overcast_observations'] <= rec['observations']
+
+    import csv
+    places = list(csv.DictReader(
+        (Path(__file__).resolve().parents[1] / 'data' / 'out'
+         / '2027-08-02-places.csv').open(encoding='utf-8')))
+    cloud_by_name = {
+        p['name']: by_id[p['geonameid']]['mean_cloud_percent']
+        for p in places if p['geonameid'] in by_id
+    }
+
+    # Upper Egypt in August is among the driest places on Earth.
+    assert cloud_by_name.get('Girga', 100) < 10.0, cloud_by_name.get('Girga')
+    # Sanaa sits in the Yemeni highlands during the summer monsoon.
+    assert cloud_by_name.get('Sanaa', 0) > 40.0, cloud_by_name.get('Sanaa')
+    # And the ordering must hold.
+    assert cloud_by_name.get('Girga', 100) < cloud_by_name.get('Sanaa', 0)

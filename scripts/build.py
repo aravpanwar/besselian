@@ -91,11 +91,11 @@ for r in ranked:
     if c:
         row['mean_cloud_percent'] = c['mean_cloud_percent']
         row['clear_sky_probability'] = c['clear_sky_probability']
-        row['cloud_years_sampled'] = c['years_sampled']
+        row['cloud_observations'] = c['observations']
     else:
         row['mean_cloud_percent'] = None
         row['clear_sky_probability'] = None
-        row['cloud_years_sampled'] = None
+        row['cloud_observations'] = None
     if lodging_index is not None:
         for radius in SUPPLY_RADII_KM:
             s_ = supply_within(r.place.latitude, r.place.longitude,
