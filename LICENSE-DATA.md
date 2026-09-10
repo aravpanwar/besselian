@@ -1,6 +1,6 @@
 # Licence: data
 
-Everything under `data/out/` and `site/data/` is licensed under the
+Everything under `data/out/` and `docs/data/` is licensed under the
 **Open Database License (ODbL) v1.0**.
 
 https://opendatacommons.org/licenses/odbl/1-0/

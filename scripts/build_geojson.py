@@ -20,7 +20,7 @@ from eclipse.path import centerline_latitude
 
 EVENT = '2027-08-02'
 E = L.Elements.from_json(ROOT / 'data' / 'elements' / f'{EVENT}.json')
-OUT = ROOT / 'site' / 'data'
+OUT = ROOT / 'docs' / 'data'
 OUT.mkdir(parents=True, exist_ok=True)
 
 

@@ -21,7 +21,7 @@ EVENT = '2027-08-02'
 
 src = json.loads((ROOT / 'data' / 'out' / f'{EVENT}-places.json')
                  .read_text(encoding='utf-8'))
-OUT = ROOT / 'site' / 'data'
+OUT = ROOT / 'docs' / 'data'
 OUT.mkdir(parents=True, exist_ok=True)
 
 places = []

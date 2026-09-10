@@ -157,7 +157,7 @@ A place missing here is missing from GeoNames.
 Code: AGPL 3.0 (`LICENSE`). Run a modified version as a network service and you
 have to publish your changes.
 
-Data under `data/out/` and `site/data/`: ODbL 1.0 (`LICENSE-DATA.md`). The
+Data under `data/out/` and `docs/data/`: ODbL 1.0 (`LICENSE-DATA.md`). The
 lodging columns come from OpenStreetMap, which is share-alike, so the dataset
 cannot be more permissive than that. Attributions you have to carry are listed
 in `LICENSE-DATA.md`.
