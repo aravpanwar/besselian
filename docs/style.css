@@ -3,7 +3,7 @@
   --paper: #fffefb;
   --ink: #14110e;
   --dim: #6b655c;
-  --faint: #9a9388;
+  --faint: #787165;   /* 4.8:1 on paper; the original #9a9388 was 3.0 and failed */
   --line: #d5d1c8;
   --hair: #eae6de;
   --accent: #1a5c7a;
@@ -15,6 +15,31 @@
 }
 
 * { box-sizing: border-box; }
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10;
+  padding: 9px 14px;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  font-size: 13px;
+}
+
+.skip:focus { left: 8px; top: 8px; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 html, body {
   height: 100%;
@@ -283,6 +308,9 @@ input[type=range] {
 .advisory svg { flex-shrink: 0; margin-top: 1px; }
 .advisory a { color: #7a4a1a; border-bottom-color: #d8b48a; }
 
+#table { display: block; }
+#table [role="row"] { display: grid; }
+
 .head, .row {
   display: grid;
   grid-template-columns: 1.5fr 0.68fr 0.56fr 0.6fr 0.46fr;
@@ -347,53 +375,6 @@ input[type=range] {
   padding: 26px 17px;
   color: var(--dim);
   text-align: center;
-}
-
-/* ---------- finding ---------- */
-
-#finding {
-  border-top: 2px solid var(--ink);
-  background: #faf8f4;
-  padding: 13px 17px;
-}
-
-#finding h3 {
-  font-size: 13px;
-  font-weight: 600;
-  margin: 0 0 7px;
-}
-
-.pair {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  margin-bottom: 8px;
-}
-
-.pair b {
-  display: block;
-  font-family: var(--mono);
-  font-size: 19px;
-  font-weight: 600;
-}
-
-.pair span {
-  display: block;
-  font-size: 11.5px;
-  color: var(--dim);
-  margin-top: 1px;
-}
-
-.pair > div:first-child b { color: var(--mark); }
-.pair svg { color: #b5aca0; flex-shrink: 0; }
-.pair .gap { margin-left: auto; text-align: right; }
-.pair .gap b { font-size: 15px; }
-
-#fText {
-  margin: 0;
-  font-size: 12px;
-  color: #4a453d;
-  line-height: 1.55;
 }
 
 /* ---------- map bits ---------- */

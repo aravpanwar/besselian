@@ -13,6 +13,8 @@
 </head>
 <body>
 
+<a class="skip" href="#rows">Skip to results</a>
+
 <header id="top">
   <h1>Totality Path &amp; Nearby Locations</h1>
   <span class="rule" aria-hidden="true"></span>
@@ -69,29 +71,13 @@
       <button type="button" data-sort="p" aria-pressed="false">population</button>
     </div>
 
-    <div id="rows" tabindex="0" aria-live="polite"></div>
+    <p id="rowsHelp" class="sr-only">
+      Use the arrow keys to move between places, Enter to show one on the map.
+    </p>
+    <div id="rows" role="table" aria-describedby="rowsHelp"
+         aria-label="Places inside the path, grouped by country"
+         aria-live="polite" aria-rowcount="0"></div>
 
-    <footer id="finding">
-      <h3>Where you sleep is not where you stand</h3>
-      <div class="pair">
-        <div>
-          <b id="fBestDur">6:23</b>
-          <span id="fBestSub">Girga &middot; 4 beds</span>
-        </div>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-             aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
-        <div>
-          <b id="fRefDur">6:20</b>
-          <span id="fRefSub">Luxor &middot; 115 beds</span>
-        </div>
-        <div class="gap">
-          <b id="fGap">103 km</b>
-          <span>apart</span>
-        </div>
-      </div>
-      <p id="fText"></p>
-    </footer>
   </section>
 </main>
 

@@ -126,6 +126,10 @@ function advisoryHtml(cc) {
 function render() {
   const list = sorted(inCircle());
   const rows = document.getElementById('rows');
+  // The selected row keeps the tab stop; otherwise the first row does.
+  const focusId = (state.selected && list.some((p) => p.i === state.selected))
+    ? state.selected
+    : (list[0] ? list[0].i : null);
 
   document.getElementById('count').textContent =
     `${list.length} place${list.length === 1 ? '' : 's'}`;
@@ -138,7 +142,6 @@ function render() {
     rows.innerHTML = `<p class="empty">No populated places inside this circle.
       Nothing is hidden: this circle simply contains none that GeoNames
       records.</p>`;
-    updateFinding(list);
     return;
   }
 
@@ -146,88 +149,39 @@ function render() {
   for (const [cc, places] of byCountry(list)) {
     const name = state.data.advisories[cc]
       ? state.data.advisories[cc].country : cc;
-    html += `<div class="group"><div class="name"><b>${name}</b>
+    html += `<div class="group" role="rowgroup"><div class="name"><b>${name}</b>
       <span class="n">${places.length}</span></div>
       ${advisoryHtml(cc)}</div>`;
-    html += `<div class="head"><div>Place</div><div class="num">Totality</div>
-      <div class="num">Lost</div><div class="num">Cloud</div>
-      <div class="num">Beds</div></div>`;
+    html += `<div class="head" role="row">
+      <div role="columnheader">Place</div>
+      <div class="num" role="columnheader">Totality</div>
+      <div class="num" role="columnheader">Lost</div>
+      <div class="num" role="columnheader">Cloud</div>
+      <div class="num" role="columnheader">Beds</div></div>`;
     for (const p of places) {
       const sel = p.i === state.selected ? ' sel' : '';
-      html += `<div class="row${sel}" data-id="${p.i}" tabindex="0" role="button"
-        aria-label="${p.n}, ${mmss(p.d)} of totality">
-        <div class="nm">${p.n}</div>
-        <div class="num dur">${mmss(p.d)}</div>
-        <div class="num${p.s < 1 ? ' near' : ''}">−${p.s.toFixed(1)}</div>
-        <div class="num">${fmtPct(p.w)}</div>
-        <div class="num${p.l < 10 ? ' thin' : ''}">${p.l}</div>
+      // Roving tabindex: exactly one row is tabbable, the rest are reached
+      // with arrow keys. Without this a keyboard user has to press Tab 772
+      // times to get past the table.
+      const tab = p.i === focusId ? 0 : -1;
+      const label = `${p.n}. Totality ${mmss(p.d)}, ${p.s.toFixed(1)} seconds `
+        + `less than the maximum. ${fmtPct(p.w)} August cloud. `
+        + `${p.l} place${p.l === 1 ? '' : 's'} to stay within 25 km.`;
+      html += `<div class="row${sel}" data-id="${p.i}" tabindex="${tab}"
+        role="row" aria-selected="${p.i === state.selected}"
+        aria-label="${label}">
+        <div class="nm" role="cell">${p.n}</div>
+        <div class="num dur" role="cell">${mmss(p.d)}</div>
+        <div class="num${p.s < 1 ? ' near' : ''}" role="cell">−${p.s.toFixed(1)}</div>
+        <div class="num" role="cell">${fmtPct(p.w)}</div>
+        <div class="num${p.l < 10 ? ' thin' : ''}" role="cell">${p.l}</div>
       </div>`;
     }
   }
   rows.innerHTML = html;
-  updateFinding(list);
+  rows.setAttribute('aria-rowcount', String(list.length));
   drawPlaces(list);
   drawCircle();
-}
-
-function updateFinding(list) {
-  const box = document.getElementById('finding');
-  const el = document.getElementById('fText');
-
-  // The sleep-and-stand comparison only means something over a distance you
-  // would actually drive. Across the whole path it picks the largest city
-  // anywhere, which is not an alternative to anything, so the panel only
-  // appears once a circle has been drawn.
-  if (!state.pin || list.length < 2) {
-    box.hidden = true;
-    return;
-  }
-
-  const best = list.slice().sort((a, b) => a.s - b.s)[0];
-
-  // Compare against the place the pin is on, if it is on one. That is the
-  // town the user is actually asking about. Ranking by lodging instead picks
-  // whichever of the villages around a city happens to share its hotel count,
-  // because a 25 km radius sweeps up the same hotels for all of them; ranking
-  // by population is no better, since GeoNames mixes town and district
-  // figures and puts Esna's markaz above the city of Luxor.
-  let most = list.find((q) =>
-    haversine(state.pin.lat, state.pin.lon, q.y, q.x) < 3);
-  if (!most) {
-    most = list.slice().sort((a, b) => (b.l - a.l) || (b.p - a.p))[0];
-  }
-
-  if (best.i === most.i) {
-    box.hidden = false;
-    document.getElementById('fBestDur').textContent = mmss(best.d);
-    document.getElementById('fBestSub').textContent =
-      `${best.n} · ${best.l} bed${best.l === 1 ? '' : 's'}`;
-    document.getElementById('fRefDur').textContent = '—';
-    document.getElementById('fRefSub').textContent = 'nothing to trade';
-    document.getElementById('fGap').textContent = '0 km';
-    el.textContent = `${best.n} has both the most places to stay in this ` +
-      `circle and the longest totality. Nothing to trade.`;
-    return;
-  }
-
-  box.hidden = false;
-  document.getElementById('fBestDur').textContent = mmss(best.d);
-  document.getElementById('fBestSub').textContent =
-    `${best.n} · ${best.l} bed${best.l === 1 ? '' : 's'}`;
-  document.getElementById('fRefDur').textContent = mmss(most.d);
-  document.getElementById('fRefSub').textContent =
-    `${most.n} · ${most.l} bed${most.l === 1 ? '' : 's'}`;
-
-  const gap = haversine(best.y, best.x, most.y, most.x);
-  document.getElementById('fGap').textContent = `${gap.toFixed(0)} km`;
-
-  const better = list.filter((p) => p.s < most.s).length;
-  const secs = (most.s - best.s).toFixed(1);
-  el.textContent = `${most.n} has ${most.l} place${most.l === 1 ? '' : 's'} ` +
-    `to stay within 25 km. ${better} town${better === 1 ? '' : 's'} in this ` +
-    `circle beat${better === 1 ? 's' : ''} it on totality. The best, ` +
-    `${best.n}, is ${gap.toFixed(0)} km away, has ` +
-    `${best.l} bed${best.l === 1 ? '' : 's'}, and buys ${secs} s.`;
 }
 
 /* ---------- map ---------- */
@@ -464,10 +418,31 @@ function bind() {
   rows.addEventListener('keydown', (e) => {
     const row = e.target.closest('.row');
     if (!row) return;
+
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       selectPlace(row.dataset.id, true);
+      return;
     }
+
+    // Arrow keys move between rows, so the table is one tab stop.
+    const all = [...rows.querySelectorAll('.row')];
+    const at = all.indexOf(row);
+    let to = -1;
+    if (e.key === 'ArrowDown') to = Math.min(at + 1, all.length - 1);
+    else if (e.key === 'ArrowUp') to = Math.max(at - 1, 0);
+    else if (e.key === 'Home') to = 0;
+    else if (e.key === 'End') to = all.length - 1;
+    else if (e.key === 'PageDown') to = Math.min(at + 10, all.length - 1);
+    else if (e.key === 'PageUp') to = Math.max(at - 10, 0);
+    else return;
+
+    e.preventDefault();
+    if (to === at) return;
+    row.tabIndex = -1;
+    all[to].tabIndex = 0;
+    all[to].focus();
+    all[to].scrollIntoView({ block: 'nearest' });
   });
 }
 
