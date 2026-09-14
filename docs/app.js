@@ -157,7 +157,7 @@ function render() {
       <div class="num" role="columnheader">Totality</div>
       <div class="num" role="columnheader">Lost</div>
       <div class="num" role="columnheader">Cloud</div>
-      <div class="num" role="columnheader">Beds</div></div>`;
+      <div class="num" role="columnheader" title="Approximate number of stays available within 25 km">Stays</div></div>`;
     for (const p of places) {
       const sel = p.i === state.selected ? ' sel' : '';
       // Roving tabindex: exactly one row is tabbable, the rest are reached
@@ -166,7 +166,7 @@ function render() {
       const tab = p.i === focusId ? 0 : -1;
       const label = `${p.n}. Totality ${mmss(p.d)}, ${p.s.toFixed(1)} seconds `
         + `less than the maximum. ${fmtPct(p.w)} August cloud. `
-        + `${p.l} place${p.l === 1 ? '' : 's'} to stay within 25 km.`;
+        + `About ${p.l} stay${p.l === 1 ? '' : 's'} available within 25 km.`;
       html += `<div class="row${sel}" data-id="${p.i}" tabindex="${tab}"
         role="row" aria-selected="${p.i === state.selected}"
         aria-label="${label}">
@@ -327,8 +327,8 @@ function showPopup(p) {
       <dt>From centre line</dt><dd>${fmtKm(p.k)} km</dd>
       <dt>Sun altitude</dt><dd>${p.a.toFixed(1)}°</dd>
       <dt>August cloud</dt><dd>${fmtPct(p.w)}</dd>
-      <dt>Beds within 25 km</dt><dd>${p.l}</dd>
-      <dt>Beds within 80 km</dt><dd>${p.L}</dd>
+      <dt>Stays within 25 km</dt><dd>~${p.l}</dd>
+      <dt>Stays within 80 km</dt><dd>~${p.L}</dd>
       </dl></div>`)
     .addTo(map);
 }
