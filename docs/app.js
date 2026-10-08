@@ -66,6 +66,9 @@ function mmss(seconds) {
 
 const fmtKm = (v) => (v == null ? 'n/a' : v.toFixed(1));
 const fmtPct = (v) => (v == null ? 'n/a' : v.toFixed(1) + '%');
+// A third of the places are west of Greenwich, so the hemisphere is not fixed.
+const fmtLat = (v) => `${Math.abs(v).toFixed(4)}°${v < 0 ? 'S' : 'N'}`;
+const fmtLon = (v) => `${Math.abs(v).toFixed(4)}°${v < 0 ? 'W' : 'E'}`;
 
 const esc = (s) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
@@ -128,7 +131,7 @@ function advisoryHtml(cc) {
   const a = state.data.advisories[cc];
   if (!a || !a.worst) return '';
   const regions = a.regions.length
-    ? ` Named areas: ${a.regions.join(', ')}.`
+    ? ` Named areas: ${esc(a.regions.join(', '))}.`
     : '';
   return `<div class="advisory">${WARN_ICON}<span>${state.data.issuer
     .replace('UK Foreign, Commonwealth &amp; Development Office', 'FCDO')}
@@ -196,12 +199,13 @@ function render() {
   document.getElementById('count').textContent =
     `${list.length} place${list.length === 1 ? '' : 's'}`;
   const scope = state.pin
-    ? `within ${state.radius} km of ${state.pin.lat.toFixed(4)}°N ` +
-      `${state.pin.lon.toFixed(4)}°E`
+    ? `within ${state.radius} km of ${fmtLat(state.pin.lat)} ` +
+      `${fmtLon(state.pin.lon)}`
     : 'across the whole path';
   document.getElementById('where').textContent = state.query.trim()
     ? `matching “${state.query.trim()}” ${scope}`
     : scope;
+  announce();
 
   if (!list.length) {
     rows.innerHTML = `<p class="empty">${emptyMessage()}</p>`;
@@ -215,7 +219,7 @@ function render() {
   for (const [cc, places] of byCountry(list)) {
     const name = state.data.advisories[cc]
       ? state.data.advisories[cc].country : cc;
-    html += `<div class="group" role="rowgroup"><div class="name"><b>${name}</b>
+    html += `<div class="group" role="rowgroup"><div class="name"><b>${esc(name)}</b>
       <span class="n">${places.length}</span></div>
       ${advisoryHtml(cc)}</div>`;
     html += `<div class="head" role="row">
@@ -235,8 +239,8 @@ function render() {
         + `About ${p.l} stay${p.l === 1 ? '' : 's'} available within 25 km.`;
       html += `<div class="row${sel}" data-id="${p.i}" tabindex="${tab}"
         role="row" aria-selected="${p.i === state.selected}"
-        aria-label="${label}">
-        <div class="nm" role="cell">${p.n}</div>
+        aria-label="${esc(label)}">
+        <div class="nm" role="cell">${esc(p.n)}</div>
         <div class="num dur" role="cell">${mmss(p.d)}</div>
         <div class="num${p.s < 1 ? ' near' : ''}" role="cell">−${p.s.toFixed(1)}</div>
         <div class="num" role="cell">${fmtPct(p.w)}</div>
@@ -248,6 +252,35 @@ function render() {
   rows.setAttribute('aria-rowcount', String(list.length));
   drawPlaces(list);
   drawCircle();
+}
+
+// The count is spoken once input settles, not on every keystroke or slider
+// step, which read out a stream of numbers.
+let announceTimer = null;
+
+function announce() {
+  clearTimeout(announceTimer);
+  announceTimer = setTimeout(() => {
+    const el = document.getElementById('announce');
+    const text = `${document.getElementById('count').textContent} ` +
+      `${document.getElementById('where').textContent}`;
+    // Unchanged text is not re-set, so the map finishing its load and
+    // redrawing does not repeat the count.
+    if (el.textContent !== text) el.textContent = text;
+  }, 500);
+}
+
+function showLoadError(what) {
+  document.getElementById('count').textContent = `Could not load ${what}`;
+  document.getElementById('where').textContent =
+    'Reload the page to try again.';
+  document.getElementById('rows').innerHTML = '';
+}
+
+async function getJson(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`);
+  return r.json();
 }
 
 /* ---------- map ---------- */
@@ -268,10 +301,11 @@ function initMap() {
                  'bottom-right');
 
   map.on('load', async () => {
+    // A missing overlay should not take the places layer down with it.
     const [path, countries] = await Promise.all([
-      fetch(`data/${EVENT}-path.geojson`).then((r) => r.json()),
-      fetch(`data/${EVENT}-countries.geojson`).then((r) => r.json()),
-    ]);
+      getJson(`data/${EVENT}-path.geojson`),
+      getJson(`data/${EVENT}-countries.geojson`),
+    ].map((p) => p.catch((e) => { console.error(e); return emptyFC(); })));
 
     // The advisory level comes from the places data, not the outlines, so a
     // re-fetched advisory changes the tint without rebuilding the geometry.
@@ -394,12 +428,23 @@ function drawCircle() {
       : emptyFC());
 }
 
+// Matches the breakpoint in style.css, where the list sits below the map.
+const STACKED = window.matchMedia('(max-width: 900px)');
+const CALM = window.matchMedia('(prefers-reduced-motion: reduce)');
+
 function selectPlace(id, fly) {
   state.selected = Number(id) === state.selected ? null : Number(id);
   const p = state.data.places.find((q) => q.i === state.selected);
   if (p) {
     showPopup(p);
     if (fly) map.easeTo({ center: [p.x, p.y], duration: 500 });
+    // On a phone the list is below the map, so picking a row from it would
+    // otherwise move a map that has scrolled out of view.
+    if (fly && STACKED.matches) {
+      document.getElementById('map').scrollIntoView({
+        behavior: CALM.matches ? 'auto' : 'smooth', block: 'start',
+      });
+    }
   } else if (popup) {
     popup.remove();
   }
@@ -414,7 +459,7 @@ function showPopup(p) {
   const adv = state.data.advisories[p.c];
   popup = new maplibregl.Popup({ closeButton: true, offset: 10 })
     .setLngLat([p.x, p.y])
-    .setHTML(`<div class="pop"><b>${p.n}</b><dl>
+    .setHTML(`<div class="pop"><b>${esc(p.n)}</b><dl>
       <dt>Totality</dt><dd>${mmss(p.d)}</dd>
       <dt>Seconds lost</dt><dd>−${p.s.toFixed(1)}</dd>
       <dt>From centre line</dt><dd>${fmtKm(p.k)} km</dd>
@@ -480,9 +525,11 @@ function bind() {
   const out = document.getElementById('radiusOut');
   radius.value = state.radius;
   out.value = `${state.radius} km`;
+  radius.setAttribute('aria-valuetext', out.value);
   radius.addEventListener('input', () => {
     state.radius = Number(radius.value);
     out.value = `${state.radius} km`;
+    radius.setAttribute('aria-valuetext', out.value);
     drawCircle();
     render();
   });
@@ -569,7 +616,13 @@ function bind() {
 
 async function main() {
   readUrl();
-  state.data = await fetch(`data/${EVENT}-places.json`).then((r) => r.json());
+  try {
+    state.data = await getJson(`data/${EVENT}-places.json`);
+  } catch (e) {
+    console.error(e);
+    showLoadError('the list of places');
+    return;
+  }
   for (const p of state.data.places) p.f = fold(p.n);
   renderKey();
 
@@ -583,7 +636,17 @@ async function main() {
 
   bind();
   if (state.pin) document.getElementById('clearPin').hidden = false;
-  initMap();
+  // The list goes up before the map, so a slow or blocked tile server
+  // leaves a working table instead of an empty page.
+  render();
+  try {
+    initMap();
+  } catch (e) {
+    console.error(e);
+    const el = document.getElementById('map');
+    el.classList.add('failed');
+    el.textContent = 'The map could not be loaded. The list still works.';
+  }
 }
 
 main();

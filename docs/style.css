@@ -123,6 +123,15 @@ main {
 
 #map { position: absolute; inset: 0; }
 
+#map.failed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: var(--dim);
+  text-align: center;
+}
+
 #results {
   width: 482px;
   flex-shrink: 0;
@@ -296,7 +305,7 @@ input[type=range] {
 .sortlabel {
   padding: 8px 0 8px 17px;
   font-size: 11px;
-  color: #8b8478;
+  color: var(--faint);
 }
 
 #sortbar button {
@@ -351,7 +360,7 @@ input[type=range] {
 .group .n {
   font-family: var(--mono);
   font-size: 11px;
-  color: #8b8478;
+  color: var(--dim);   /* --faint is 4.2:1 on the group background */
 }
 
 .advisory {
@@ -454,12 +463,20 @@ input[type=range] {
 
 /* ---------- narrow ---------- */
 
+/* Phones: the page scrolls as a whole. The map sits on top with nothing over
+   it, its panels follow below it, and the list scrolls with the page rather
+   than in a box of its own, which on a phone left a strip too small to use. */
 @media (max-width: 900px) {
-  main { flex-direction: column; }
-  /* The list must give way, not the map: with the desktop flex-shrink: 0 on
-     #results, 772 rows squeezed the map to zero height. */
-  #mapwrap { height: 52vh; flex-grow: 0; flex-shrink: 0; }
-  #results { flex: 1 1 0; width: auto; border-left: 0; border-top: 1px solid var(--line); }
+  html, body { height: auto; }
+  main { display: block; }
+  #mapwrap { display: flex; flex-direction: column; }
+  #map { position: relative; inset: auto; height: 50vh; height: 50svh; }
+  .panel { position: static; border-width: 0 0 1px; }
+  .controls { order: 1; width: auto; padding: 11px 16px; }
+  .clearpin { order: 2; padding: 10px 16px; text-align: left; }
+  .caveat { order: 3; max-width: none; padding: 9px 16px; }
+  #results { width: auto; border-left: 0; }
+  #rows { overflow: visible; }
   header { gap: 10px; }
   .stats { display: none; }
   /* Below 16px, iOS Safari zooms the page when the field takes focus. */
