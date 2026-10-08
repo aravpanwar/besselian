@@ -22,6 +22,7 @@ const state = {
   sort: 's',
   selected: null,     // geonameid
   query: '',
+  closed: new Set(),  // advisories put away, as advisoryId() strings
 };
 
 /* ---------- geometry ---------- */
@@ -127,16 +128,56 @@ const WARN_ICON = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none"
   stroke="#a8621f" stroke-width="2" stroke-linecap="round" aria-hidden="true">
   <path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>`;
 
-function advisoryHtml(cc) {
+function advisoryHtml(cc, name) {
   const a = state.data.advisories[cc];
-  if (!a || !a.worst) return '';
+  if (!a || !a.worst || advisoryClosed(cc)) return '';
   const regions = a.regions.length
     ? ` Named areas: ${esc(a.regions.join(', '))}.`
     : '';
   return `<div class="advisory">${WARN_ICON}<span>${state.data.issuer
     .replace('UK Foreign, Commonwealth &amp; Development Office', 'FCDO')}
     ${a.label.toLowerCase()}.${regions}
-    <a href="${a.url}" target="_blank" rel="noopener">Checked ${a.reviewed}</a>.</span></div>`;
+    <a href="${a.url}" target="_blank" rel="noopener">Checked ${a.reviewed}</a>.</span>
+    <button type="button" class="advhide" data-adv="${cc}" aria-expanded="true"
+      aria-label="Hide the travel advisory for ${esc(name)}">×</button></div>`;
+}
+
+// A closed advisory shrinks to a button beside the country name rather than
+// going away: it can be put out of the way, never out of sight.
+function advisoryShowHtml(cc, name) {
+  const a = state.data.advisories[cc];
+  if (!a || !a.worst || !advisoryClosed(cc)) return '';
+  return `<button type="button" class="advshow" data-adv="${cc}"
+    aria-expanded="false" aria-label="Show the travel advisory for ${esc(name)}">
+    ${WARN_ICON}<span>Advisory</span></button>`;
+}
+
+/* ---------- closed advisories ---------- */
+
+// Remembered per browser, keyed by the FCDO review date, so an advisory the
+// FCDO has since revised opens again on its own.
+const CLOSED_KEY = 'closedAdvisories';
+const advisoryId = (cc) => `${cc}@${state.data.advisories[cc].reviewed}`;
+const advisoryClosed = (cc) => state.closed.has(advisoryId(cc));
+
+function loadClosed() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CLOSED_KEY) || '[]');
+    if (Array.isArray(saved)) state.closed = new Set(saved);
+  } catch (e) { /* storage blocked: advisories simply start open */ }
+}
+
+function toggleAdvisory(cc) {
+  const id = advisoryId(cc);
+  if (state.closed.has(id)) state.closed.delete(id);
+  else state.closed.add(id);
+  try {
+    localStorage.setItem(CLOSED_KEY, JSON.stringify([...state.closed]));
+  } catch (e) { /* closes for this visit only */ }
+  render();
+  // The button that was pressed is replaced, so focus moves to its opposite.
+  const next = document.querySelector(`#rows [data-adv="${cc}"]`);
+  if (next) next.focus();
 }
 
 // Tint strength follows how much of the country the advisory covers. There
@@ -220,8 +261,8 @@ function render() {
     const name = state.data.advisories[cc]
       ? state.data.advisories[cc].country : cc;
     html += `<div class="group" role="rowgroup"><div class="name"><b>${esc(name)}</b>
-      <span class="n">${places.length}</span></div>
-      ${advisoryHtml(cc)}</div>`;
+      <span class="n">${places.length}</span>${advisoryShowHtml(cc, name)}</div>
+      ${advisoryHtml(cc, name)}</div>`;
     html += `<div class="head" role="row">
       <div role="columnheader">Place</div>
       <div class="num" role="columnheader">Totality</div>
@@ -419,6 +460,8 @@ function drawPlaces(visible) {
   });
 }
 
+let pinMarker = null;
+
 function drawCircle() {
   if (!map || !map.getSource('circle')) return;
   map.getSource('circle').setData(
@@ -426,6 +469,22 @@ function drawCircle() {
       ? { type: 'FeatureCollection',
           features: [circlePolygon(state.pin.lat, state.pin.lon, state.radius)] }
       : emptyFC());
+
+  // The pin marks the circle's centre. Decorative: the summary already
+  // states the coordinates in text, and clicks pass through it (style.css)
+  // so the towns under it stay clickable.
+  if (state.pin && !pinMarker) {
+    pinMarker = new maplibregl.Marker({
+      color: '#1a5c7a', scale: 0.8, className: 'pin',
+    });
+    pinMarker.getElement().setAttribute('aria-hidden', 'true');
+    pinMarker.setLngLat([state.pin.lon, state.pin.lat]).addTo(map);
+  } else if (state.pin) {
+    pinMarker.setLngLat([state.pin.lon, state.pin.lat]);
+  } else if (pinMarker) {
+    pinMarker.remove();
+    pinMarker = null;
+  }
 }
 
 // Matches the breakpoint in style.css, where the list sits below the map.
@@ -580,6 +639,11 @@ function bind() {
 
   const rows = document.getElementById('rows');
   rows.addEventListener('click', (e) => {
+    const adv = e.target.closest('[data-adv]');
+    if (adv) {
+      toggleAdvisory(adv.dataset.adv);
+      return;
+    }
     const row = e.target.closest('.row');
     if (row) selectPlace(row.dataset.id, true);
   });
@@ -624,6 +688,7 @@ async function main() {
     return;
   }
   for (const p of state.data.places) p.f = fold(p.n);
+  loadClosed();
   renderKey();
 
   document.getElementById('dt').textContent = state.data.event.delta_t;

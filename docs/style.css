@@ -376,6 +376,41 @@ input[type=range] {
 .advisory svg { flex-shrink: 0; margin-top: 1px; }
 .advisory a { color: #7a4a1a; border-bottom-color: #d8b48a; }
 
+/* 24px targets: the WCAG 2.2 minimum, and about right for a thumb. */
+.advhide, .advshow {
+  font: inherit;
+  color: #7a4a1a;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.advhide {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin: -4px -6px 0 auto;
+  font-size: 17px;
+  line-height: 1;
+}
+
+.advshow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  margin-left: auto;
+  padding: 0 4px;
+  font-size: 11.5px;
+}
+
+.advhide:hover, .advshow:hover { background: rgba(122, 74, 26, .08); }
+
+.advhide:focus-visible, .advshow:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+}
+
 #table { display: block; }
 #table [role="row"] { display: grid; }
 
@@ -455,6 +490,8 @@ input[type=range] {
   border: 1px solid var(--line);
   box-shadow: 0 2px 8px rgba(0,0,0,.09);
 }
+
+.maplibregl-marker.pin { pointer-events: none; }
 
 .pop b { display: block; font-size: 13px; margin-bottom: 3px; }
 .pop dl { margin: 0; display: grid; grid-template-columns: auto auto; gap: 1px 10px; }
