@@ -32,6 +32,8 @@ Attribution for every source that went into the dataset:
   ECMWF is responsible for any use of this information.
 - **Places to stay.** © OpenStreetMap contributors, ODbL 1.0.
   https://www.openstreetmap.org/copyright
+- **Country outlines.** Natural Earth, public domain. No attribution is
+  required; it is listed for provenance. https://www.naturalearthdata.com/
 - **Travel advisories.** Contains public sector information licensed under the
   Open Government Licence v3.0, from the UK Foreign, Commonwealth &
   Development Office.

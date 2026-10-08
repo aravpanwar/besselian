@@ -85,6 +85,9 @@ state no licence.
 python scripts/extract_lodging.py   # once per OSM refresh, needs the extracts
 python scripts/fetch_cloud.py       # once per event, needs ~/.cdsapirc
 python scripts/build.py             # writes data/out/<event>-places.{csv,json}
+python scripts/build_site_data.py   # writes docs/data/<event>-places.json
+python scripts/build_geojson.py     # writes docs/data/<event>-path.geojson
+python scripts/build_countries.py   # writes docs/data/<event>-countries.geojson
 python -m pytest tests/ -q          # validation gate
 ```
 
@@ -170,6 +173,8 @@ in `LICENSE-DATA.md`.
 - Lodging: OpenStreetMap contributors, ODbL 1.0, via Geofabrik extracts.
 - Advisories: UK Foreign, Commonwealth & Development Office, Open Government
   Licence v3.0.
+- Country outlines: Natural Earth 1:10m, UK point of view, v5.1.2, public
+  domain.
 - Prior art worth using: [eclipsewhere.com](https://eclipsewhere.com) for
   curated cloud-first guidance, [Xavier Jubier's interactive map](http://xjubier.free.fr/en/site_pages/solar_eclipses/xSE_GoogleMap3.php?Ecl=+20270802)
   for point queries, [Eclipsophile](https://eclipsophile.com/tse2027/) for

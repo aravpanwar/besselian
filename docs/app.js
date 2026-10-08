@@ -21,6 +21,7 @@ const state = {
   radius: 120,
   sort: 's',
   selected: null,     // geonameid
+  query: '',
 };
 
 /* ---------- geometry ---------- */
@@ -63,8 +64,15 @@ function mmss(seconds) {
   return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`;
 }
 
-const fmtKm = (v) => (v == null ? '—' : v.toFixed(1));
-const fmtPct = (v) => (v == null ? '—' : v.toFixed(1) + '%');
+const fmtKm = (v) => (v == null ? 'n/a' : v.toFixed(1));
+const fmtPct = (v) => (v == null ? 'n/a' : v.toFixed(1) + '%');
+
+const esc = (s) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+// Search key: no accents, case, apostrophes, hyphens or spaces, so typing
+// "ain el turk" finds ’Aïn el Turk and "qus" finds Qūş.
+const fold = (s) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()
+  .replace(/[^\p{L}\p{N}]/gu, '');
 
 /* ---------- selection ---------- */
 
@@ -73,6 +81,11 @@ function inCircle() {
   if (!state.pin) return all;
   return all.filter((p) =>
     haversine(state.pin.lat, state.pin.lon, p.y, p.x) <= state.radius);
+}
+
+function matching(list) {
+  const q = fold(state.query);
+  return q ? list.filter((p) => p.f.includes(q)) : list;
 }
 
 function sorted(list) {
@@ -123,8 +136,57 @@ function advisoryHtml(cc) {
     <a href="${a.url}" target="_blank" rel="noopener">Checked ${a.reviewed}</a>.</span></div>`;
 }
 
+// Tint strength follows how much of the country the advisory covers. There
+// are no outlines for the named parts, so a 'parts' country is shaded whole,
+// lighter, and the map key says so.
+function tintFor(cc) {
+  const a = state.data.advisories[cc];
+  if (!a || !a.worst) return 'none';
+  return a.worst.endsWith('_to_whole_country') ? 'whole' : 'parts';
+}
+
+function renderKey() {
+  const labels = { whole: new Set(), parts: new Set() };
+  for (const [cc, a] of Object.entries(state.data.advisories)) {
+    const t = tintFor(cc);
+    if (t !== 'none') labels[t].add(a.label.toLowerCase());
+  }
+  let html = '';
+  if (labels.whole.size) {
+    html += `<div class="keyrow"><span class="sw whole" aria-hidden="true"></span>
+      <span>FCDO ${[...labels.whole].join('; ')}.</span></div>`;
+  }
+  if (labels.parts.size) {
+    html += `<div class="keyrow"><span class="sw parts" aria-hidden="true"></span>
+      <span>FCDO ${[...labels.parts].join('; ')}. The whole country is
+      shaded.</span></div>`;
+  }
+  const key = document.getElementById('key');
+  key.innerHTML = html;
+  key.hidden = !html;
+}
+
+function emptyMessage() {
+  const q = fold(state.query);
+  if (!q) {
+    return `No populated places inside this circle. Nothing is hidden: this
+      circle simply contains none that GeoNames records.`;
+  }
+  const said = esc(state.query.trim());
+  const elsewhere = state.pin
+    ? state.data.places.filter((p) => p.f.includes(q)).length
+    : 0;
+  if (elsewhere) {
+    return `No place matching “${said}” inside this circle. ${elsewhere}
+      elsewhere in the path: clear the pin to see
+      ${elsewhere === 1 ? 'it' : 'them'}.`;
+  }
+  return `No place matching “${said}” in the path. Only places inside the path
+    of totality are listed, under their GeoNames spelling.`;
+}
+
 function render() {
-  const list = sorted(inCircle());
+  const list = sorted(matching(inCircle()));
   const rows = document.getElementById('rows');
   // The selected row keeps the tab stop; otherwise the first row does.
   const focusId = (state.selected && list.some((p) => p.i === state.selected))
@@ -133,15 +195,19 @@ function render() {
 
   document.getElementById('count').textContent =
     `${list.length} place${list.length === 1 ? '' : 's'}`;
-  document.getElementById('where').textContent = state.pin
+  const scope = state.pin
     ? `within ${state.radius} km of ${state.pin.lat.toFixed(4)}°N ` +
       `${state.pin.lon.toFixed(4)}°E`
     : 'across the whole path';
+  document.getElementById('where').textContent = state.query.trim()
+    ? `matching “${state.query.trim()}” ${scope}`
+    : scope;
 
   if (!list.length) {
-    rows.innerHTML = `<p class="empty">No populated places inside this circle.
-      Nothing is hidden: this circle simply contains none that GeoNames
-      records.</p>`;
+    rows.innerHTML = `<p class="empty">${emptyMessage()}</p>`;
+    rows.setAttribute('aria-rowcount', '0');
+    drawPlaces(list);
+    drawCircle();
     return;
   }
 
@@ -202,7 +268,34 @@ function initMap() {
                  'bottom-right');
 
   map.on('load', async () => {
-    const path = await fetch(`data/${EVENT}-path.geojson`).then((r) => r.json());
+    const [path, countries] = await Promise.all([
+      fetch(`data/${EVENT}-path.geojson`).then((r) => r.json()),
+      fetch(`data/${EVENT}-countries.geojson`).then((r) => r.json()),
+    ]);
+
+    // The advisory level comes from the places data, not the outlines, so a
+    // re-fetched advisory changes the tint without rebuilding the geometry.
+    for (const f of countries.features) f.properties.tint = tintFor(f.properties.cc);
+    map.addSource('countries', {
+      type: 'geojson', data: countries, attribution: 'Natural Earth',
+    });
+    // Under the basemap labels, so town names stay legible through the tint.
+    const labels = map.getStyle().layers.find((l) => l.type === 'symbol');
+    const below = labels ? labels.id : undefined;
+    map.addLayer({
+      id: 'advisory', type: 'fill', source: 'countries',
+      filter: ['!=', ['get', 'tint'], 'none'],
+      paint: {
+        'fill-color': '#b42318',
+        'fill-opacity': ['match', ['get', 'tint'], 'whole', 0.18, 0.08],
+      },
+    }, below);
+    map.addLayer({
+      id: 'advisory-edge', type: 'line', source: 'countries',
+      filter: ['!=', ['get', 'tint'], 'none'],
+      paint: { 'line-color': '#b42318', 'line-opacity': 0.45, 'line-width': 0.8 },
+    }, below);
+
     map.addSource('path', { type: 'geojson', data: path });
 
     map.addLayer({
@@ -397,6 +490,34 @@ function bind() {
 
   document.getElementById('clearPin').addEventListener('click', clearPin);
 
+  const search = document.getElementById('q');
+  search.addEventListener('input', () => {
+    state.query = search.value;
+    render();
+  });
+  search.addEventListener('keydown', (e) => {
+    const rows = document.getElementById('rows');
+    if (e.key === 'Enter') {
+      // Enter shows the top match, the first row as currently sorted.
+      e.preventDefault();
+      const first = rows.querySelector('.row');
+      if (first && Number(first.dataset.id) !== state.selected) {
+        selectPlace(first.dataset.id, true);
+      }
+    } else if (e.key === 'ArrowDown') {
+      const row = rows.querySelector('.row[tabindex="0"]');
+      if (row) {
+        e.preventDefault();
+        row.focus();
+      }
+    } else if (e.key === 'Escape' && search.value) {
+      e.preventDefault();
+      search.value = '';
+      state.query = '';
+      render();
+    }
+  });
+
   document.getElementById('sortbar').addEventListener('click', (e) => {
     const b = e.target.closest('button');
     if (!b) return;
@@ -449,6 +570,8 @@ function bind() {
 async function main() {
   readUrl();
   state.data = await fetch(`data/${EVENT}-places.json`).then((r) => r.json());
+  for (const p of state.data.places) p.f = fold(p.n);
+  renderKey();
 
   document.getElementById('dt').textContent = state.data.event.delta_t;
   document.getElementById('stats').innerHTML =
