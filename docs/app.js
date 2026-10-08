@@ -198,12 +198,12 @@ function renderKey() {
   let html = '';
   if (labels.whole.size) {
     html += `<div class="keyrow"><span class="sw whole" aria-hidden="true"></span>
-      <span>FCDO ${[...labels.whole].join('; ')}.</span></div>`;
+      <span>FCDO ${[...labels.whole].join('; ')}, shown in red.</span></div>`;
   }
   if (labels.parts.size) {
     html += `<div class="keyrow"><span class="sw parts" aria-hidden="true"></span>
-      <span>FCDO ${[...labels.parts].join('; ')}. The whole country is
-      shaded.</span></div>`;
+      <span>FCDO ${[...labels.parts].join('; ')}, shown in pink across the
+      whole country.</span></div>`;
   }
   const key = document.getElementById('key');
   key.innerHTML = html;
@@ -362,13 +362,17 @@ function initMap() {
       filter: ['!=', ['get', 'tint'], 'none'],
       paint: {
         'fill-color': '#b42318',
-        'fill-opacity': ['match', ['get', 'tint'], 'whole', 0.18, 0.08],
+        // Red against pink: the two levels have to read as different at a glance.
+        'fill-opacity': ['match', ['get', 'tint'], 'whole', 0.34, 0.08],
       },
     }, below);
     map.addLayer({
       id: 'advisory-edge', type: 'line', source: 'countries',
       filter: ['!=', ['get', 'tint'], 'none'],
-      paint: { 'line-color': '#b42318', 'line-opacity': 0.45, 'line-width': 0.8 },
+      paint: {
+        'line-color': '#b42318', 'line-width': 0.8,
+        'line-opacity': ['match', ['get', 'tint'], 'whole', 0.75, 0.45],
+      },
     }, below);
 
     map.addSource('path', { type: 'geojson', data: path });

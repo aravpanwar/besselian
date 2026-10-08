@@ -229,7 +229,7 @@ input[type=range] {
   border: 1px solid rgba(180, 35, 24, .45);
 }
 
-.sw.whole { background: rgba(180, 35, 24, .18); }
+.sw.whole { background: rgba(180, 35, 24, .34); }
 .sw.parts { background: rgba(180, 35, 24, .08); }
 
 .clearpin {
