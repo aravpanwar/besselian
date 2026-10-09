@@ -16,6 +16,9 @@ data/cache/*.zip
 # Natural Earth country outlines, re-downloadable.
 data/cache/ne_*.geojson
 
+# IBM Plex fonts for scripts/build_images.py, re-downloadable.
+data/cache/*.ttf
+
 # ERA5 netcdf is large and re-downloadable from the CDS.
 data/cache/cloud/*.nc
 

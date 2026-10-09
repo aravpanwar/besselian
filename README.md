@@ -88,6 +88,7 @@ python scripts/build.py             # writes data/out/<event>-places.{csv,json}
 python scripts/build_site_data.py   # writes docs/data/<event>-places.json
 python scripts/build_geojson.py     # writes docs/data/<event>-path.geojson
 python scripts/build_countries.py   # writes docs/data/<event>-countries.geojson
+python scripts/build_images.py      # writes docs/og.png and the site icons, needs Pillow
 python -m pytest tests/ -q          # validation gate
 ```
 
