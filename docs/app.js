@@ -407,16 +407,18 @@ function initMap() {
       },
     });
 
+    // Radius by population, so the map answers "what is near here" without
+    // reading the table. pad widens it for the invisible hit layer.
+    const dotRadius = (pad) => [
+      'interpolate', ['linear'], ['get', 'pop'],
+      0, 2.5 + pad, 20000, 3.5 + pad, 100000, 5 + pad,
+      500000, 7.5 + pad, 2000000, 10 + pad,
+    ];
     map.addSource('places', { type: 'geojson', data: emptyFC() });
     map.addLayer({
       id: 'places', type: 'circle', source: 'places',
       paint: {
-        // Radius by population, so the map answers "what is near here"
-        // without reading the table.
-        'circle-radius': [
-          'interpolate', ['linear'], ['get', 'pop'],
-          0, 2.5, 20000, 3.5, 100000, 5, 500000, 7.5, 2000000, 10,
-        ],
+        'circle-radius': dotRadius(0),
         'circle-color': [
           'case', ['==', ['get', 'sel'], true], '#b5540e', '#3d382f',
         ],
@@ -425,20 +427,28 @@ function initMap() {
         'circle-stroke-color': '#fffefb',
       },
     });
+    // Invisible and 5 px wider than each dot: the smallest are 5 px across,
+    // too small to point at or tap. The dots themselves never change size.
+    map.addLayer({
+      id: 'places-hit', type: 'circle', source: 'places',
+      paint: { 'circle-radius': dotRadius(5), 'circle-opacity': 0 },
+    });
 
-    map.on('click', 'places', (e) => {
-      const id = e.features[0].properties.id;
-      selectPlace(id, false);
+    map.on('click', 'places-hit', (e) => {
+      hideTip();
+      selectPlace(nearest(e).properties.id, false);
     });
-    map.on('mouseenter', 'places', () => {
+    map.on('mousemove', 'places-hit', (e) => {
       map.getCanvas().style.cursor = 'pointer';
+      showTip(Number(nearest(e).properties.id));
     });
-    map.on('mouseleave', 'places', () => {
+    map.on('mouseleave', 'places-hit', () => {
       map.getCanvas().style.cursor = '';
+      hideTip();
     });
     // Clicking bare map drops the pin there.
     map.on('click', (e) => {
-      const hit = map.queryRenderedFeatures(e.point, { layers: ['places'] });
+      const hit = map.queryRenderedFeatures(e.point, { layers: ['places-hit'] });
       if (hit.length) return;
       setPin(e.lngLat.lat, e.lngLat.lng);
     });
@@ -514,6 +524,54 @@ function selectPlace(id, fly) {
   render();
   writeUrl();
 }
+
+// Where padded hit areas overlap, as along the Nile, the place under the
+// pointer is the one whose dot centre is nearest.
+function nearest(e) {
+  let best = e.features[0];
+  let bestD = Infinity;
+  for (const f of e.features) {
+    const p = map.project(f.geometry.coordinates);
+    const d = (p.x - e.point.x) ** 2 + (p.y - e.point.y) ** 2;
+    if (d < bestD) { bestD = d; best = f; }
+  }
+  return best;
+}
+
+// Hover label: name, totality and seconds lost. It sits above the dot and
+// lets the pointer through (style.css), so it never covers what it labels;
+// Esc dismisses it.
+let tip = null;
+let tipId = null;
+
+function showTip(id) {
+  if (id === tipId) return;
+  tipId = id;
+  // The selected place already has its full popup open.
+  const p = id === state.selected ? null : state.data.places.find((q) => q.i === id);
+  if (!p) {
+    if (tip) tip.remove();
+    return;
+  }
+  if (!tip) {
+    tip = new maplibregl.Popup({
+      closeButton: false, closeOnClick: false, anchor: 'bottom',
+      offset: 9, className: 'tip',
+    });
+  }
+  tip.setLngLat([p.x, p.y])
+    .setHTML(`<b>${esc(p.n)}</b> <span>${mmss(p.d)}, −${p.s.toFixed(1)} s</span>`)
+    .addTo(map);
+}
+
+function hideTip() {
+  if (tip) tip.remove();
+  tipId = null;
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') hideTip();
+});
 
 let popup = null;
 

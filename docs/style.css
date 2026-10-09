@@ -493,6 +493,10 @@ input[type=range] {
 
 .maplibregl-marker.pin { pointer-events: none; }
 
+.maplibregl-popup.tip { pointer-events: none; }
+.tip .maplibregl-popup-content { padding: 5px 8px; white-space: nowrap; }
+.tip span { margin-left: 4px; font-family: var(--mono); color: var(--dim); }
+
 .pop b { display: block; font-size: 13px; margin-bottom: 3px; }
 .pop dl { margin: 0; display: grid; grid-template-columns: auto auto; gap: 1px 10px; }
 .pop dt { color: var(--dim); }
